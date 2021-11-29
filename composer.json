@@ -1,0 +1,28 @@
+{
+    "name": "peimengc\/kuaishou",
+    "description": "快手爬虫",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "peimengc",
+            "email": "931692760@qq.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.4",
+        "ext-json": "*",
+        "nesbot/carbon": "^2.54"
+    },
+    "autoload": {
+        "psr-4": {
+            "Peimengc\\Kuaishou\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Peimengc\\Kuaishou\\ServiceProvider"
+            ]
+        }
+    }
+}
