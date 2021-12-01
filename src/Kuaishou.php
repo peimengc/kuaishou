@@ -27,6 +27,11 @@ class Kuaishou
         return $this;
     }
 
+    public function getGuzzleOptions($key)
+    {
+        return $this->guzzleOptions[$key] ?? null;
+    }
+
     public function pushMiddleware(callable $middleware, $name)
     {
         $this->middlewares[$name] = $middleware;
@@ -115,8 +120,14 @@ class Kuaishou
     public function studioToken($serviceToken, $ksId)
     {
         $res = $this->httpPostJson('https://studio.kuaishou.com/api/auth/token', compact('ksId', 'serviceToken'));
-        $this->studioToken = $res['token'];
+        $this->setStudioToken($res['token']);
         return $res;
+    }
+
+    public function setStudioToken($token)
+    {
+        $this->studioToken = $token;
+        return $this;
     }
 
     public function getStudioToken()
@@ -178,6 +189,12 @@ class Kuaishou
         $followUrl = 'https://cp.kuaishou.com/profile';
         $setRootDomain = 'true';
         return $this->httpGet('https://cp.kuaishou.com/rest/infra/sts', compact('authToken', 'sid', 'followUrl', 'setRootDomain'));
+    }
+
+    //磁力金牛
+    public function niusts($authToken, $sid = 'kuaishou.ad.esp')
+    {
+        return $this->httpGet('https://niu.e.kuaishou.com/rest/infra/sts', compact('authToken', 'sid'));
     }
 
     public function cpPhotoPushList($userId, $page = 1, $count = 10)
@@ -250,5 +267,43 @@ class Kuaishou
         parse_str($queryStr, $query);
         $data = array_merge(['client_key' => '3c2cd3f3', 'os' => 'android'], $data);
         return $this->request('POST', $uri, ['form_params' => $data, 'query' => $query, 'base_uri' => 'https://apissl.gifshow.com']);
+    }
+
+    public function walletList($channel = 0, $rechargeSwitch = 1)
+    {
+        $uri = 'https://niu.e.kuaishou.com/rest/n/wallet/recharge/walletList';
+        return $this->httpGet($uri, compact('channel', 'rechargeSwitch'));
+    }
+
+    public function niuOwnerInfo()
+    {
+        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/owner/info';
+        return $this->httpPostJson($uri);
+    }
+
+    //直播列表
+    public function studioAllRooms($start, $end = null)
+    {
+        $end = $end ?: time() . 999;
+        $uri = 'https://studio.kuaishou.com/api/live/all-rooms';
+        return $this->httpGet($uri, compact('start', 'end'));
+    }
+
+    public function studioGetRooms($streamId)
+    {
+        $uri = 'https://studio.kuaishou.com/api/live/get-room';
+        return $this->httpGet($uri, compact('streamId'));
+    }
+
+    public function niuLiveOrderCreate(array $data)
+    {
+        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/order/live/create';
+        return $this->httpPostJson($uri, $data);
+    }
+
+    public function niuPhotoList($userId, $pcursor = '', $count = 50)
+    {
+        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/photo/list';
+        return $this->httpPostJson($uri, compact('userId', 'pcursor', 'count'));
     }
 }
