@@ -295,15 +295,45 @@ class Kuaishou
         return $this->httpGet($uri, compact('streamId'));
     }
 
+    //创建磁力金牛订单
     public function niuLiveOrderCreate(array $data)
     {
         $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/order/live/create';
         return $this->httpPostJson($uri, $data);
     }
 
+    //作品列表
     public function niuPhotoList($userId, $pcursor = '', $count = 50)
     {
         $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/photo/list';
         return $this->httpPostJson($uri, compact('userId', 'pcursor', 'count'));
+    }
+
+    //订单列表 $helpBuyType1自买0帮买
+    public function niuLiveOrderList($liveStreamId, $helpBuyType = 1, $orderId = 0)
+    {
+        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/order/v2/live/list';
+        return $this->httpPostJson($uri, compact('liveStreamId', 'helpBuyType', 'orderId'));
+    }
+
+    //订单详情
+    public function niuLiveOrderDetail($orderId)
+    {
+        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/order/detail';
+        return $this->httpPostJson($uri, compact('orderId'));
+    }
+
+    //订单报表
+    public function niuLiveOrderReport($orderId)
+    {
+        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/report/live';
+        return $this->httpPostJson($uri, compact('orderId'));
+    }
+
+    //关闭订单
+    public function niuLiveOrderClose($orderId)
+    {
+        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/order/common/close';
+        return $this->httpPostJson($uri, compact('orderId'));
     }
 }
