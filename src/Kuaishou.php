@@ -336,4 +336,63 @@ class Kuaishou
         $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/order/common/close';
         return $this->httpPostJson($uri, compact('orderId'));
     }
+
+    //机构粉条订单
+    public function jgLiveOrderCreate(array $data)
+    {
+        $uri = 'https://jigou.kuaishou.com/rest/cp/org/fanstop/promote/live/order/create';
+        return $this->httpPostJson($uri, $data);
+    }
+
+    public function jgUserInfo()
+    {
+        $url = 'https://jigou.kuaishou.com/rest/cp/org/account/current';
+        return $this->httpPostJson($url, [
+            'path' => '/',
+            'kuaishou.web.cp.api_ph' => '',
+        ]);
+    }
+
+    // 机构账号作品列表
+    public function jgPhotoList($memberId, $fromTime = -1, $count = 50)
+    {
+        $url = 'https://jigou.kuaishou.com/rest/cp/org/fanstop/promote/live/photo/list';
+
+        return $this->httpPostJson($url, [
+            "memberId" => $memberId,
+            "fromTime" => $fromTime,
+            "count" => $count,
+        ]);
+    }
+
+    //机构服务平台 已开播的直播间
+    public function jgLiveCurrent($page = 1, $count = 50)
+    {
+        $url = 'https://jigou.kuaishou.com/rest/cp/org/fanstop/promote/live/current';
+        return $this->httpPostJson($url, [
+            "page" => $page,
+            "count" => $count,
+            "total" => 0,
+            "sort" => 1,
+            "memberId" => "",
+            "desc" => null,
+            "kuaishou.web.cp.api_ph" => ""
+        ]);
+    }
+
+    public function kbPrice()
+    {
+        $url = 'https://jigou.kuaishou.com/rest/cp/org/fanstop/money/kb/price';
+        return $this->httpPostJson($url, [
+            "kuaishou.web.cp.api_ph" => ""
+        ]);
+    }
+
+    public function accountType()
+    {
+        $url = 'https://jigou.kuaishou.com/rest/cp/org/fanstop/money/account/type';
+        return $this->httpPostJson($url, [
+            "kuaishou.web.cp.api_ph" => ""
+        ]);
+    }
 }
