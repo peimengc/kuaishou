@@ -309,6 +309,13 @@ class Kuaishou
         return $this->httpPostJson($uri, compact('userId', 'pcursor', 'count'));
     }
 
+    //订单列表 0 全部 4推广中 2审核中 1待付款 5已完成
+    public function niuOrderList($cursor = '', $promotionStatus = 0, $pageSize = 20, $promotionType = 2)
+    {
+        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/order/v2/list';
+        return $this->httpPostJson($uri, compact('promotionStatus', 'cursor', 'pageSize', 'promotionType'));
+    }
+
     //订单列表 $helpBuyType1自买0帮买
     public function niuLiveOrderList($liveStreamId, $helpBuyType = 1, $orderId = 0)
     {
