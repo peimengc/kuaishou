@@ -161,21 +161,31 @@ class Kuaishou
     }
 
     // 当前直播信息 商品列表,数据统计,直播信息等
-    public function liveCurrent()
+    public function zsLiveCurrent()
     {
-        return $this->httpPost(' https://zs.kwaixiaodian.com/rest/pc/live/assistant/live/current');
+        return $this->zspost('https://zs.kwaixiaodian.com/rest/pc/live/assistant/live/current');
     }
 
     //开始讲解
-    public function kwaiShopCarRecordStart($liveStreamId, $itemId)
+    public function zsShopCarRecordStart($liveStreamId, $itemId)
     {
-        return $this->httpPostJson('https://zs.kwaixiaodian.com/rest/pc/live/assistant/shopCar/record/start', compact('liveStreamId', 'itemId'));
+        return $this->zspost('https://zs.kwaixiaodian.com/rest/pc/live/assistant/shopCar/record/start', compact('liveStreamId', 'itemId'));
     }
 
     //结束讲解
-    public function kwaiShopCarRecordEnd($liveStreamId, $itemId)
+    public function zsShopCarRecordEnd($liveStreamId, $itemId)
     {
-        return $this->httpPostJson('https://zs.kwaixiaodian.com/rest/pc/live/assistant/shopCar/record/end', compact('liveStreamId', 'itemId'));
+        return $this->zspost('https://zs.kwaixiaodian.com/rest/pc/live/assistant/shopCar/record/end', compact('liveStreamId', 'itemId'));
+    }
+
+    public function zspost($uri, $data = [])
+    {
+        return $this->request('POST', $uri, [
+            'json' => $data,
+            'headers' => [
+                'Origin' => 'https://zs.kwaixiaodian.com'
+            ]
+        ]);
     }
 
     //扫码后 cookie kuaishou.web.cp.api
