@@ -6,6 +6,7 @@ namespace Peimengc\Kuaishou;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
 
@@ -259,6 +260,66 @@ class Kuaishou
     public function fansTopBalance()
     {
         return $this->httpPostJson('https://webapp.kuaishou.com/rest/w/fansTop/account/balance/listAll/New');
+    }
+
+    //直播间投放时作品列表
+    public function fansTopAdvancedOrder($liveStreamId, string $pcursor = '')
+    {
+        return $this->httpPostJson('https://pages.kuaishou.com/rest/k/live/fansTop/advanced/order', [
+            "liveStreamId" => $liveStreamId,
+            "pcursor" => $pcursor,
+        ]);
+    }
+
+    /**
+     * 创建订单
+     * {"result":4007,"error_msg":"直播关闭不能创建订单"}
+     * {"result":400,"error_msg":"userIntentionType参数不合法"}
+     * 返回信息包含 merchantId 的需要支付操作 一般都是块币支付时才会有
+     * [{"data": {"userId": **, "ksOrderId": "**", "needRetry": false, "merchantId": "**"}, "domain": "fanstop", "result": 1, "message": "成功"}]
+     * {"data":{"userId":**,"ksOrderId":"**","needRetry":false,"merchantId":""},"domain":"fanstop","result":1,"message":"成功"}
+     */
+    public function fansTopOrderCreateNew(array $data)
+    {
+        return $this->httpPostJson('https://pages.kuaishou.com/rest/k/live/fansTop/order/create/new', $data);
+    }
+
+    //根据merchantId获取交易额
+    public function appTradeCashier($merchantId, $ksOrderId)
+    {
+        return $this->httpPost('https://www.kuaishoupay.com/pay/order/app/trade/cashier', [
+            'merchant_id' => $merchantId,
+            'out_order_no' => $ksOrderId,
+            'extra' => '',
+            'is_install_wechat' => 'false',
+            'is_install_alipay' => 'false',
+            'is_install_union_pay' => 'false',
+            'is_install_wechat_sdk' => 'true',
+            'is_install_alipay_sdk' => 'true',
+            'is_install_union_pay_sdk' => 'false',
+            'retry_times' => '0',
+        ]);
+    }
+
+    //支付
+    public function appTradeCreatePayOrder($merchantId, $ksOrderId, $payAmount)
+    {
+        /**
+         * @var $cookieJar CookieJar
+         */
+        $cookieJar = $this->getGuzzleOptions('cookies');
+        $cookie = $cookieJar->getCookieByName('kspay_csrf_token');
+        $kspay_csrf_token = $cookie ? $cookie->getValue() : '';
+        return $this->httpPost('https://www.kuaishoupay.com/pay/order/app/trade/create_pay_order', [
+            'merchant_id' => $merchantId,
+            'out_order_no' => $ksOrderId,
+            'provider' => 'KSCOIN',
+            'payment_method' => 'IN_APP',
+            'provider_channel_type' => 'NORMAL',
+            'provider_pay_amount' => $payAmount,
+            'kspay_csrf_token' => $kspay_csrf_token,
+            'fq_stage' => '',
+        ]);
     }
 
     protected function appPost($uri, array $data = [])
