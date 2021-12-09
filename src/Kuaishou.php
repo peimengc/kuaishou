@@ -431,6 +431,16 @@ class Kuaishou
         ]);
     }
 
+    //成员信息
+    public function jgMemberInfo($memberId)
+    {
+        $url = 'https://jigou.kuaishou.com/rest/cp/org/member/detail/baseinfo';
+        return $this->httpPostJson($url, [
+            'memberId' => $memberId,
+            'kuaishou.web.cp.api_ph' => '',
+        ]);
+    }
+
     // 机构账号作品列表
     public function jgPhotoList($memberId, $fromTime = -1, $count = 50)
     {
