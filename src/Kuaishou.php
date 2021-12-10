@@ -9,6 +9,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Promise\Utils;
+use function GuzzleHttp\Promise\unwrap;
 
 class Kuaishou
 {
@@ -394,18 +396,49 @@ class Kuaishou
         return $this->httpPostJson($uri, compact('liveStreamId', 'helpBuyType', 'orderId'));
     }
 
+    const NIU_ORDER_DETAIL = 'https://niu.e.kuaishou.com/rest/n/esp/web/order/detail';
+
     //订单详情
     public function niuLiveOrderDetail($orderId)
     {
-        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/order/detail';
-        return $this->httpPostJson($uri, compact('orderId'));
+        return $this->httpPostJson(self::NIU_ORDER_DETAIL, compact('orderId'));
     }
+
+    //并发获取详情
+    public function niuLiveOrderDetails(array $orderIds)
+    {
+        return $this->niuLiveOrderPostAsync(self::NIU_ORDER_DETAIL, $orderIds);
+    }
+
+    const NIU_ORDER_REPORT = 'https://niu.e.kuaishou.com/rest/n/esp/web/report/live';
 
     //订单报表
     public function niuLiveOrderReport($orderId)
     {
-        $uri = 'https://niu.e.kuaishou.com/rest/n/esp/web/report/live';
-        return $this->httpPostJson($uri, compact('orderId'));
+        return $this->httpPostJson(self::NIU_ORDER_REPORT, compact('orderId'));
+    }
+
+    //并发获取报表
+    public function niuLiveOrderReports(array $orderIds)
+    {
+        return $this->niuLiveOrderPostAsync(self::NIU_ORDER_REPORT, $orderIds);
+    }
+
+    // 金牛并发请求
+    protected function niuLiveOrderPostAsync($uri, array $orderIds)
+    {
+        $client = $this->getHttpClient();
+        $promises = [];
+        foreach ($orderIds as $orderId) {
+            $options = array_merge($this->guzzleOptions, ['json' => compact('orderId')]);
+            $promises[$orderId] = $client->postAsync($uri, $options);
+        }
+        $results = Utils::unwrap($promises);
+        $data = [];
+        foreach ($results as $k => $result) {
+            $data[$k] = json_decode($result->getBody()->getContents(), true);
+        }
+        return $data;
     }
 
     //关闭订单
