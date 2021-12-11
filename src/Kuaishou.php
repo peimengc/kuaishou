@@ -9,8 +9,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Pool;
 use GuzzleHttp\Promise\Utils;
-use function GuzzleHttp\Promise\unwrap;
+use GuzzleHttp\Psr7\Request;
 
 class Kuaishou
 {
@@ -425,7 +426,7 @@ class Kuaishou
     }
 
     // 金牛并发请求
-    protected function niuLiveOrderPostAsync($uri, array $orderIds)
+    protected function niuLiveOrderPostAsync1($uri, array $orderIds)
     {
         $client = $this->getHttpClient();
         $promises = [];
@@ -438,6 +439,30 @@ class Kuaishou
         foreach ($results as $k => $result) {
             $data[$k] = json_decode($result->getBody()->getContents(), true);
         }
+        return $data;
+    }
+
+    protected function niuLiveOrderPostAsync($uri, array $orderIds)
+    {
+        $data = [];
+        $this->guzzleOptions['headers'] = ['Content-Type' => 'application/json'];
+        $client = $this->getHttpClient();
+        $requests = function ($orderIds) use ($uri) {
+            foreach ($orderIds as $orderId) {
+                yield $orderId => new Request('POST', $uri, [], json_encode(compact('orderId')));
+            }
+        };
+
+        $pool = new Pool($client, $requests($orderIds), [
+            'concurrency' => 50,
+            'fulfilled' => function ($response, $index) use (&$data) {
+                $data[$index] = json_decode($response->getBody()->getContents(), true);
+            },
+            'rejected' => function ($reason, $index) {
+            },
+        ]);
+        $promise = $pool->promise();
+        $promise->wait();
         return $data;
     }
 
