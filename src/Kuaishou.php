@@ -489,12 +489,22 @@ class Kuaishou
         ]);
     }
 
-    //成员信息
+    //成员信息 202009非机构成员 20000无权限
     public function jgMemberInfo($memberId)
     {
         $url = 'https://jigou.kuaishou.com/rest/cp/org/member/detail/baseinfo';
         return $this->httpPostJson($url, [
             'memberId' => $memberId,
+            'kuaishou.web.cp.api_ph' => '',
+        ]);
+    }
+
+    //成员列表 关键字
+    public function orgMemberSuggest($memberId)
+    {
+        $url = 'https://jigou.kuaishou.com/rest/cp/org/member/suggest';
+        return $this->httpPostJson($url, [
+            'keyword' => $memberId,
             'kuaishou.web.cp.api_ph' => '',
         ]);
     }
