@@ -419,6 +419,12 @@ class Kuaishou
         return $this->httpPostJson(self::NIU_ORDER_REPORT, compact('orderId'));
     }
 
+    //投放时达人搜索
+    public function niuTargetInfluencerSearch($keyword)
+    {
+        return $this->httpPostJson('https://niu.e.kuaishou.com/rest/n/esp/web/target/influencer/search', compact('keyword'));
+    }
+
     //并发获取报表
     public function niuLiveOrderReports(array $orderIds)
     {
